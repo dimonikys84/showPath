@@ -1,3 +1,5 @@
+
+
 //Кодирование ссылки
 
 function base64_encode( data ) {	// Encodes data with MIME base64
@@ -82,20 +84,39 @@ function parseGetParams() {
 
 function pushUrl() {
     var imgSrc = document.getElementById("imgSrc").value;
-    var imgWidth = document.getElementById("imgWidth").value;
-    var imgHeight = document.getElementById("imgHeight").value;
     var vMode = document.getElementById("vMode").value;
     
-    history.replaceState({state: 1}, "state 1","?width=" + imgWidth + "&height=" + imgHeight + "&vmode=" + vMode + "&imgsrc=" + base64_encode(imgSrc));
+    history.replaceState({state: 1}, "state 1","?vmode=" + vMode + "&imgsrc=" + base64_encode(imgSrc));
     
     makeScene();
+
+}
+
+// Узнаем размер изображения
+
+function imageSize(imgSrc) {
+	$("body").append("<img class='scopeImg' src='" + imgSrc + "'>");
+	var sizes = [];
+	var width = $(".scopeImg").width();
+	var height = $(".scopeImg").height();
+	sizes.push(width,height);
+	$(".scopeImg").remove();
+	
+	return sizes;
+	
 }
 
 // Создание\Обновление сцены
 
 function makeScene() {
-        var GETArr = parseGetParams();
+    var GETArr = parseGetParams();   
+	var imgSrcDec = base64_decode(GETArr.imgsrc);
+	var imgSizes =  imageSize(imgSrcDec);
 
+	var imgWidth = imgSizes[0];
+	var imgHeight = imgSizes[1];
+	
+	
 //if (GETArr.vmode == "true") {
 //    var panel = document.getElementById("panel").remove();
 //} else {
@@ -105,16 +126,17 @@ function makeScene() {
 //    document.getElementById("vMode").value = GETArr.vmode;   
 //}
 //    
-   $("svg").remove();
+   
+$("svg").remove();
     
     
-var maxWidth = GETArr.width;
-var maxHeight = GETArr.height;
+var maxWidth = imgWidth;
+var maxHeight = imgHeight;
 
 
 var paper = Snap(maxWidth, maxHeight);
 
-var img = paper.image(base64_decode(GETArr.imgsrc), 0, 0, maxWidth, maxHeight);
+var img = paper.image(imgSrcDec, 0, 0, maxWidth, maxHeight);
 
 var circ = paper.circle(100, 100, 30);
 
